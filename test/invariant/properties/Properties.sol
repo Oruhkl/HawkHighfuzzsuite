@@ -17,9 +17,9 @@ contract Properties is Handler, PropertiesAsserts{
         assertGt(afterCount, beforeCount, "Review count did not increase after positive review");
     }
 
-    // Invariant properties 2: Principal cannot be teachers (BROKEN)
-    function invariant_principalCannotBeTeacher() external {
-        assertWithMsg(levelOne.isTeacher(principal), "Principal should not be a teacher");
+    // // Invariant properties 2: Principal cannot be teachers (BROKEN)
+    function invariant_principalCannotBeTeacher() public {
+        assertWithMsg(!levelOne.isTeacher(principal), "Principal should not be a teacher");
     }
 
     //Invariant properties 3: Student score cannot exceed 100
@@ -64,7 +64,7 @@ contract Properties is Handler, PropertiesAsserts{
     }
 
     //Invariant properties 7: Contract balance should be at least bursary amount (BROKEN)
-    function invariant_contractBalanceConsistency() external {
+    function invariant_contractBalanceConsistency() public {
         address token = levelOne.getSchoolFeesToken();
         uint256 contractBalance = IERC20(token).balanceOf(address(levelOne));
         uint256 bursary = levelOne.bursary();
@@ -87,7 +87,7 @@ contract Properties is Handler, PropertiesAsserts{
     }
 
     // Invariant properties 9: Too much money was distributed (BROKEN)
-    function invariant_noDoubleSpending() external {
+    function invariant_noDoubleSpending() public {
         address token = levelOne.getSchoolFeesToken();
         uint256 contractBalance = IERC20(token).balanceOf(address(levelOne));
         uint256 bursary = levelOne.bursary();

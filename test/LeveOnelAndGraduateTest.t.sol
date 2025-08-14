@@ -222,4 +222,5 @@ contract LevelOneAndGraduateTest is Test {
         levelOneProxy.enroll();
         vm.stopPrank();
     }
+
 }
