@@ -28,6 +28,7 @@ import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
  * @notice Contract for the Hawk High School
  */
 contract LevelOne is Initializable, UUPSUpgradeable {
+    
     using SafeERC20 for IERC20;
 
     ////////////////////////////////
@@ -312,4 +313,10 @@ contract LevelOne is Initializable, UUPSUpgradeable {
     }
 
     function _authorizeUpgrade(address newImplementation) internal override onlyPrincipal {}
+   
+    // MY HELPER EXTERNAL FUNCTIONS FOR PRIVATE VARIABLES
+    function getReviewCount(address _student) external view returns (uint256) {
+        return reviewCount[_student];
+    }
+    
 }
