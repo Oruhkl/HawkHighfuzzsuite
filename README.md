@@ -1,85 +1,167 @@
-## Hawk High
+# Properties.sol - Invariant Testing Suite
 
-[//]: # (contest-details-open)
+## Overview
 
-### About 
+This repository contains a comprehensive invariant testing suite for the **Hawk High School** smart contract system. The `Properties.sol` contract implements 9 critical invariants to ensure the system behaves correctly under all conditions during fuzzing campaigns.
 
-Welcome to **Hawk High**, enroll, avoid bad reviews, and graduate!!!
+## 🎯 Purpose
 
-You have been contracted to review the upgradeable contracts for the Hawk High School which will be launched very soon.
+This invariant test suite is designed to:
+- Validate core business logic of the Hawk High School system
+- Identify edge cases and vulnerabilities through property-based testing
+- Ensure system integrity across all possible state transitions
+- Provide comprehensive coverage for audit and security review
 
-These contracts utilize the UUPSUpgradeable library from OpenZeppelin.
+## 📋 Invariants Overview
 
-At the end of the school session (4 weeks), the system is upgraded to a new one.
+### ✅ Working Invariants
 
-### Actors
+| ID | Property | Description | Status |
+|----|----------|-------------|--------|
+| 3 | `invariant_studentScoresBounded` | Student scores must not exceed 100 | ✅ PASSING |
+| 4 | `invariant_reviewCountWithinLimits` | Review count cannot exceed 5 | ✅ PASSING |
+| 5 | `invariant_sessionStateLogic` | Session end must be set when in session | ✅ PASSING |
+| 8 | `invariant_paymentDistribution` | Total wages cannot exceed 100% | ✅ PASSING |
 
-- `Principal`: In charge of hiring/firing teachers, starting the school session, and upgrading the system at the end of the school session. Will receive 5% of all school fees paid as his wages. can also expel students who break rules.
-- `Teachers`: In charge of giving reviews to students at the end of each week. Will share in 35% of all school fees paid as their wages.
-- `Student`: Will pay a school fee when enrolling in Hawk High School. Will get a review each week. If they fail to meet the cutoff score at the end of a school session, they will be not graduated to the next level when the `Principal` upgrades the system.
+### 🔴 Failing Invariants (Potential Bugs)
 
-### Invariants
+| ID | Property | Description | Status | Impact |
+|----|----------|-------------|--------|--------|
+| 1 | `invariant_reviewCountIncreasesAfterPositiveReview` | Review count must increase after positive reviews | 🔴 BROKEN | High |
+| 2 | `invariant_principalCannotBeTeacher` | Principal should not have teacher privileges | 🔴 BROKEN | Medium |
+| 6 | `invariant_bursaryAccumulation` | Bursary should equal total fees paid | 🔴 BROKEN | Critical |
+| 7 | `invariant_contractBalanceConsistency` | Contract balance ≥ bursary amount | 🔴 BROKEN | Critical |
+| 9 | `invariant_noDoubleSpending` | Prevents over-distribution of funds | 🔴 BROKEN | Critical |
 
-- A school session lasts 4 weeks
-- For the sake of this project, assume USDC has 18 decimals
-- Wages are to be paid only when the `graduateAndUpgrade()` function is called by the `principal`
-- Payment structure is as follows:
-  - `principal` gets 5% of `bursary`
-  - `teachers` share of 35% of bursary
-  - remaining 60% should reflect in the bursary after upgrade
-- Students can only be reviewed once per week
-- Students must have gotten all reviews before system upgrade. System upgrade should not occur if any student has not gotten 4 reviews (one for each week)
-- Any student who doesn't meet the `cutOffScore` should not be upgraded
-- System upgrade cannot take place unless school's `sessionEnd` has reached
+## 🔍 Detailed Invariant Analysis
 
-### Resources
-
-Check out [this](https://updraft.cyfrin.io/courses/advanced-foundry/upgradeable-smart-contracts/introduction-to-upgradeable-smart-contracts) to learn more about Upgradeable Contracts
-
-[//]: # (contest-details-close)
-
-[//]: # (scope-open)
-
-### Scope
-
+### Property 1: Review Count Logic
+```solidity
+function invariant_reviewCountIncreasesAfterPositiveReview(address _student) external
 ```
-├── src
-│   ├── LevelOne.sol
-│   └── LevelTwo.sol
+**Expected Behavior**: When a positive review is given, the student's review count should increment.
+**Potential Issue**: Review counting mechanism may be faulty or conditional logic may be incorrect.
+
+### Property 2: Role Separation
+```solidity
+function invariant_principalCannotBeTeacher() public
+```
+**Expected Behavior**: The principal should not have teacher role permissions.
+**Potential Issue**: Role management system may allow privilege overlap.
+
+### Properties 6, 7, 9: Financial Integrity
+These three properties focus on the critical financial aspects of the system:
+- **Property 6**: Ensures all paid fees are properly tracked in the bursary
+- **Property 7**: Verifies contract holds sufficient tokens to cover obligations
+- **Property 9**: Prevents over-distribution during graduation payouts
+
+**Critical Impact**: These failures suggest potential fund drainage or accounting inconsistencies.
+
+## 🛠 Technical Implementation
+
+### Architecture
+```
+Properties.sol
+├── extends Handler (LevelOneHandlers.sol)
+├── extends PropertiesAsserts (assertion utilities)
+└── tests LevelOne.sol contract
 ```
 
-### Compatibilities
+### Key Features
+- **Comprehensive Coverage**: 9 invariants covering business logic, access control, and financial integrity
+- **State-based Testing**: Properties validate state consistency across all operations
+- **Financial Security**: Multiple properties ensure funds are properly managed and distributed
+- **Role-based Access**: Validates separation of concerns between actors
 
-- Chain: EVM Compatible
-- Token: USDC
+### Testing Methodology
+- Uses Foundry's invariant testing framework
+- Handler-based approach for controlled state transitions
+- Property assertions with detailed error messages
+- Systematic coverage of all contract functions
 
-[//]: # (scope-close)
+## 🚀 Usage
 
-[//]: # (getting-started-open)
-
-### Setup
-
+### Running the Invariant Tests
 ```bash
-    git clone https://github.com/CodeHawks-Contests/2025-05-hawk-high.git
+# Run all invariant tests
+forge test --match-contract Properties
+
+# Run with detailed output
+forge test --match-contract Properties -vvv
+
+# Run specific invariant
+forge test --match-test invariant_bursaryAccumulation -vvv
 ```
 
+### Integration with Fuzzing Campaign
 ```bash
-    make setup
+# Extended fuzzing session
+forge test --match-contract Properties --fuzz-runs 10000
+
+# With specific seed for reproducibility
+forge test --match-contract Properties --fuzz-seed 42
 ```
 
-```bash
-    forge build
-```
+## 🔧 Configuration
 
-### Tests
+### Handler Setup
+The contract inherits from `Handler` which provides:
+- Controlled function calls to the target contract
+- Proper state management
+- Random parameter generation for fuzzing
 
-```bash
-    forge test
-```
-[//]: # (getting-started-close)
+### Assertion Framework
+Uses `PropertiesAsserts` for:
+- Enhanced assertion messages
+- Consistent error reporting
+- Debugging utilities
 
-[//]: # (known-issues-open)
+## 📊 Expected Outcomes
 
-None reported! 😉
+### For Successful Properties
+When invariants pass, they validate:
+- Correct implementation of business rules
+- Proper state transitions
+- Security of access controls
 
-[//]: # (known-issues-close)
+### For Failing Properties
+Failing invariants indicate:
+- **Critical Bugs**: Properties 6, 7, 9 suggest fund management issues
+- **Logic Errors**: Properties 1, 2 indicate implementation flaws
+- **Security Vulnerabilities**: Role confusion and state inconsistencies
+
+## 🎯 Audit Focus Areas
+
+Based on the failing invariants, auditors should focus on:
+
+1. **Fund Management** (Properties 6, 7, 9)
+   - Bursary calculation logic
+   - Token transfer mechanisms
+   - Distribution calculations in `graduateAndUpgrade()`
+
+2. **Review System** (Property 1)
+   - Review counting implementation
+   - Conditional logic for positive vs negative reviews
+
+3. **Access Control** (Property 2)
+   - Role assignment mechanisms
+   - Permission validation functions
+
+## 📝 Notes for Security Review
+
+- This test suite identifies 5 potential vulnerabilities in the Hawk High system
+- Financial properties are most critical - fund drainage potential exists
+- Role separation issues could lead to privilege escalation
+- All failing properties should be investigated during manual review
+
+## 🔄 Continuous Testing
+
+This invariant suite should be run:
+- During development iterations
+- Before deployment
+- As part of CI/CD pipeline
+- During security audits
+
+---
+
+**Disclaimer**: This is a security testing suite. Failing invariants indicate potential vulnerabilities that require immediate investigation and remediation.
