@@ -1,4 +1,4 @@
-# Properties.sol - Invariant Testing Suite
+Invariant Testing Suite
 
 ## Overview
 
