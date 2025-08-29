@@ -83,23 +83,7 @@ Properties.sol
 
 ### Running the Invariant Tests
 ```bash
-# Run all invariant tests
-forge test --match-contract Properties
-
-# Run with detailed output
-forge test --match-contract Properties -vvv
-
-# Run specific invariant
-forge test --match-test invariant_bursaryAccumulation -vvv
-```
-
-### Integration with Fuzzing Campaign
-```bash
-# Extended fuzzing session
-forge test --match-contract Properties --fuzz-runs 10000
-
-# With specific seed for reproducibility
-forge test --match-contract Properties --fuzz-seed 42
+ medusa fuzz
 ```
 
 ## 🔧 Configuration
