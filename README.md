@@ -29,9 +29,9 @@ This invariant test suite is designed to:
 |----|----------|-------------|--------|--------|
 | 1 | `invariant_reviewCountIncreasesAfterPositiveReview` | Review count must increase after positive reviews | 🔴 BROKEN | High |
 | 2 | `invariant_principalCannotBeTeacher` | Principal should not have teacher privileges | 🔴 BROKEN | Medium |
-| 6 | `invariant_bursaryAccumulation` | Bursary should equal total fees paid | 🔴 BROKEN | Critical |
-| 7 | `invariant_contractBalanceConsistency` | Contract balance ≥ bursary amount | 🔴 BROKEN | Critical |
-| 9 | `invariant_noDoubleSpending` | Prevents over-distribution of funds | 🔴 BROKEN | Critical |
+| 6 | `invariant_bursaryAccumulation` | Bursary should equal total fees paid | 🔴 BROKEN | High |
+| 7 | `invariant_contractBalanceConsistency` | Contract balance ≥ bursary amount | 🔴 BROKEN | High |
+| 9 | `invariant_noDoubleSpending` | Prevents over-distribution of funds | 🔴 BROKEN | High |
 
 ## 🔍 Detailed Invariant Analysis
 
